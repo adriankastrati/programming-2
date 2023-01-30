@@ -6,30 +6,24 @@ defmodule Deriv do
   | {:add, expr(), expr()}
   | {:mul, expr(), expr()}
   | {:exp, expr(), literal()}
-  | {:ln, literal()}
-  | {:div, literal(), literal()}
-  | {:sin, literal()}
-  | {:sqrt, literal()}
+  | {:ln, expr()}
+  | {:div, expr(), expr()}
+  | {:sin, expr()}
+  | {:sqrt, expr()}
 
   def test1() do
-  e =  {:add,
-          {:mul, {:num, 2}, {:var, :x}},
-          {:num, 4}
+  e =  {:mul,
+          {:mul, {:var, :x},{:num, 2}},
+          {:div, {:num, 1}, {:num, 2}}
   }
+  d = {:sqrt,{:num,9}}
+  # d =  deriv(e, :x)
 
-  d =  deriv(e, :x)
-
-
-    {:add,
-      {:mul, {:num, 0}, {:var, :x}},
-      {:mul, {:num, 2}, {:num, 1}}
-    }
-
-
-
-  IO.write("expression: #{pprint(e)}\n")
-  IO.write("derivative: #{pprint(d)}\n")
+  IO.write("expression: #{pprint(d)}\n")
   IO.write("simplified: #{pprint(simplify(d))}\n")
+
+  # IO.write("derivative: #{pprint(d)}\n")
+  # IO.write("simplified: #{pprint(simplify(d))}\n")
   :ok
   end
 
@@ -119,10 +113,12 @@ defmodule Deriv do
   def simplify({:mul, e1, e2}) do simplify_mul(simplify(e1), simplify(e2)) end
   def simplify({:exp, e1, e2}) do simplify_exp(simplify(e1), simplify(e2)) end
   def simplify({:div, e1, e2}) do simplify_div(simplify(e1), simplify(e2)) end
+  def simplify({:sqrt, e1}) do simplify_sqrt(simplify(e1)) end
+  def simplify({:sin, e1}) do simplify_sin(simplify(e1)) end
 
   def simplify(e) do e end
 
-
+  def simplify_sin({coa})
 
   def simplify_add({:num, 0}, e2) do e2 end
   def simplify_add(e1, {:num, 0}) do e1 end
@@ -136,16 +132,23 @@ defmodule Deriv do
   def simplify_mul(e1,{:num, 1}) do e1 end
   def simplify_mul({:num, 1}, e2) do e2 end
   def simplify_mul(e1, e2) do {:mul, e1, e2} end
+  # def simplify_mul({:div, e1, {:num, n1}}, {:num, n1}) do {:mul, e1, {:num,}} end
+
 
 
   def simplify_exp(_, {:num, 0}) do {:num,1} end
   def simplify_exp(e1, {:num, 1}) do e1 end
+  def simplify_exp({:num, n1}, {:num, n2}) do {:num, :math.pow(n1,n2)} end
   def simplify_exp(e1, e2) do {:exp, e1, e2} end
 
 
   def simplify_div({:num, n1}, {:num, n2}) do {:num, n1/n2} end
   def simplify_div({_, n}, {_, n}) do {:num, 1} end
   def simplify_div(e1,e2) do {:div, e1, e2} end
+
+  def simplify_sqrt({:num, n1}) do {:num, :math.sqrt(n1)} end
+  def simplify_sqrt(e) do {:sqrt, e} end
+
 
   def pprint({:num,n}) do "#{n}" end
   def pprint({:var,v}) do "#{v}" end
