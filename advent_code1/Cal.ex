@@ -21,5 +21,4 @@ defmodule Cal do
   end
 
 
-
 end
