@@ -23,7 +23,7 @@ defmodule Train do
 
   def main([], n) do {n, [], []} end
   def main([head|tail], n) do
-    case main(tail, n) do
+    case main(tail, n) dotrain
       {0, remain, take} -> {0, [head|remain], take}
       {n, remain, take} -> {n-1, remain, [head|take]}
     end
